@@ -1,1 +1,2 @@
 sqlite/database.db
+sqlite/__pycache__/*
