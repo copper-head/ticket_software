@@ -5,7 +5,8 @@ CREATE TABLE users
     password_salt TEXT,
     password_hash TEXT,
     first_name TEXT,
-    last_name TEXT
+    last_name TEXT,
+    is_admin INT NOT NULL
 );
 
 CREATE TABLE session_tokens 

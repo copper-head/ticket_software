@@ -41,6 +41,20 @@ def get_password_hash(password, salt):
     return hasher.hexdigest()
 
 
+def is_admin(user_name, connection):
+
+    cursor = connection.cursor()
+
+    query = '''
+        SELECT is_admin
+        FROM users
+        WHERE user_name = ?
+    '''
+
+    cursor.execute(query, (user_name,))
+    results = cursor.fetchall()
+
+
 # Description:
 #       Returns a success if user exists and pass is correct.
 def authenticate_user(user_name, password, connection):

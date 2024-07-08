@@ -73,4 +73,5 @@ def get_user_token():
     connection.close()
     return json.dumps(ret_dict)
 
-    
+
+@user_blueprint.route('/admin/get_users', methods=['GET'])
