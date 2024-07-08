@@ -43,15 +43,17 @@ def get_password_hash(password, salt):
 
 # Description:
 #       Returns a success if user exists and pass is correct.
-def authenticate_user(user_name, password, curs):
+def authenticate_user(user_name, password, connection):
+
+    cursor = connection.cursor()
 
     query = '''
         SELECT password_hash, password_salt
         FROM users
         WHERE user_name == ?
     '''
-    curs.execute(query, (user_name,))
-    hash_details = curs.fetchall()[0]
+    cursor.execute(query, (user_name,))
+    hash_details = cursor.fetchall()[0]
 
     if len(hash_details) == 0:
         return (False, "user_not_found")
@@ -73,7 +75,9 @@ def authenticate_user(user_name, password, curs):
 #       last_name (string)
 # Post:
 #       Inserts into the database the new user.
-def create_new_user(user_name, password, first_name, last_name, cursor):
+def create_new_user(user_name, password, first_name, last_name, connection):
+
+    cursor = connection.cursor()
 
     # Query for checking if the user is in the database
     # This could be optimized a bit
@@ -84,7 +88,7 @@ def create_new_user(user_name, password, first_name, last_name, cursor):
     '''
 
     # Execute the query
-    cursor.execute(query, (user_name))
+    cursor.execute(query, (user_name,))
 
     # Fetch the query results
     results = cursor.fetchall()
@@ -117,9 +121,9 @@ def create_new_user(user_name, password, first_name, last_name, cursor):
             (user_name, hashing['salt'], hashing['hash'], first_name, last_name)
         )
 
-        # Commit to the database
-        cursor.commit()
+        connection.commit()
 
+        # Commit to the database
         return (True, "account_created")
 
 # Description: 
@@ -131,7 +135,9 @@ def create_new_user(user_name, password, first_name, last_name, cursor):
 #       last_name (string)
 # Post:
 #       Inserts into the database the new user.
-def update_user_password(user_name, new_pass, cursor):
+def update_user_password(user_name, new_pass, connection):
+
+    cursor = connection.cursor()
     
     # Get a salt and the corresponding hash for the new password
     sh = get_secure_hash(new_pass)
@@ -144,4 +150,4 @@ def update_user_password(user_name, new_pass, cursor):
 
     # Update and commit
     cursor.execute(query, (sh['salt'], sh['hash'], user_name))
-    cursor.commit()
+    connection.commit()

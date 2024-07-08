@@ -1,1 +1,1 @@
-DB_FILE = 'sqlite/database.db'
+DB_FILE = 'database.db'
