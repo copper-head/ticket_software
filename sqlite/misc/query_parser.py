@@ -21,32 +21,42 @@ import pyparsing as pp
 
 string_token = pp.Regex(r'"[^" | ^\"]*"')
 
-def string_conditional(input_str, valid_params, valid_cond):
+# Description:
+#       This function is used to check that validity of paramaters
+#
+def parse_string_conditional(input_str, valid_params, valid_cond):
     
-    # Rules for params and comparators
+    # Terminal Rules for the grammar.
     param = pp.oneOf(valid_params)
     comparators = pp.oneOf(valid_cond)
+    logical_ops = pp.oneOf("AND OR")
+    not_op = pp.oneOf("NOT")
+
+    tail_rule = pp.Forward()
     
-    # Terminal Rule
-    condtionals = param + comparators + string_token
+    # 
+    conditionals = pp.Optional(not_op) + param + comparators + string_token
+    tail_rule << (logical_ops + conditionals + pp.Optional(tail_rule))
+    start_rule = conditionals + pp.Optional(tail_rule)
 
     # parse the input string
     try:
-        result = condtionals.parseString(input_str)
+        result = start_rule.parseString(input_str)
+        joined_result = " ".join(result)
     except:
         return False
 
-    if len(result) == 3:
-        return result
-    else:
-        return False
+    return joined_result
+
+    
 
 
 if __name__ == "__main__":
 
-    input_str = "first_name \"Duncan\"\"wowee\""
+    input_str = "first_name == \"Duncanwowee\" AND first_name == \"repear\" OR first_name == \"CREME\" + afefesfs"
 
-    test = string_conditional(input_str, "first_name", "==")
+    test = parse_string_conditional(input_str, "first_name", "==")
 
     print(test)
+    print(" ".join(test))
     
