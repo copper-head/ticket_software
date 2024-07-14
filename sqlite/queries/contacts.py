@@ -1,9 +1,5 @@
 import sqlite3 as sq
 
-#3. Create a python file for modifying contacts table (queries/contacts.py)
-#    - Add function for creating contacts
-#    - Add function for modifying contacts
-
 # Description:
 #       Checks to see if the contact exists
 #
@@ -21,7 +17,7 @@ def contact_exist(contact_email, connection):
     query = '''
         SELECT email
         FROM contacts
-        WHERE email == ?
+        WHERE email = ?
     '''
 
     # Execute the query
@@ -30,11 +26,8 @@ def contact_exist(contact_email, connection):
     # Fetch results of the query
     results = cursor.fetchall()
 
-    # If there is no results, return false, else true
-    if len(results) == 0:
-        return False
-    else:
-        return True
+    # Return true if there are any results, false otherwise
+    return len(results) > 0
     
 
     # # Query to check if the contact already is in database using EXISTS
@@ -76,7 +69,19 @@ def contact_exist(contact_email, connection):
     #     return True
 
 
-
+# Description:
+#       Inserts a contact into the database
+#
+# Pre-Conditions:
+#       first_name (string)
+#       last_name (string)
+#       email (string)
+#       phone (integer)
+#       contact_address (string)
+#       connetions (sqlite connection object)
+#
+# Post:
+#       Inserts a contact into the database
 def create_contact(first_name, last_name, email, phone, contact_address, connection):
 
     cursor = connection.cursor()
@@ -108,10 +113,22 @@ def create_contact(first_name, last_name, email, phone, contact_address, connect
         )
 
         # Insert the new contact and commit
-        cursor.execute(query, (data,))
+        cursor.execute(query, data)
         connection.commit()
+        return(True)
 
-
+# Descrption:
+#       Modifys a contract in the database
+#
+# Pre-Conditions:
+#       first_name (string)
+#       last_name (string)
+#       email (string)
+#       phone (integer)
+#       contact_address (string)
+#       connetions (sqlite connection object)
+# Post:
+#       Updates a contact in the database       
 def modify_contact(first_name, last_name, email, phone, contact_address, connection):
     
     # Check if the contact exists
@@ -128,9 +145,19 @@ def modify_contact(first_name, last_name, email, phone, contact_address, connect
                 last_name = ?,
                 phone = ?,
                 contact_address = ?
-            WHERE email == ?
+            WHERE email = ?
         '''
         
+        # Put data into a tuple
+        data = (
+            first_name,
+            last_name,
+            phone,
+            contact_address,
+            email
+        )
+
+
         # Update and commit
-        cursor.execute(query, (first_name, last_name, phone, contact_address, email,))
+        cursor.execute(query, data)
         connection.commit()

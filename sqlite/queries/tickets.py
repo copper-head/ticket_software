@@ -2,15 +2,21 @@ import sqlite
 import datetime
 import contacts as co
 
-#1. Create python file for modifying tickets table (queries/tickets.py)
-#    - Add function for creating tickets.
-#    - Add function for modifying ticket attributes
+# TO DO:
 #    - Create a function for deleting tickets - Note that we will need to CASCADE
 #    as there will be log entries that must be deleted to maintain referential
 #    integrity (might be best to leave this till later for now)
 
-
-
+# Description:
+#       Creates a ticket
+#
+# Pre-Conditions:
+#       contact_email (string)
+#       issue_title (string)
+#       connection (sqlite connection object)
+#
+# Post:
+#       inserts a ticket into the database
 def create_ticket(contact_email, issue_title, connection):
 
     # Checks to see if the contact exists
@@ -18,9 +24,9 @@ def create_ticket(contact_email, issue_title, connection):
         return (False, "contact_not_found")
     else:
 
-        # Fetch contact id
         cursor = connection.cursor()
 
+        # Query to fetch contact_id
         query = '''
             SELECT contact_id
             FROM contacts
@@ -54,7 +60,7 @@ def create_ticket(contact_email, issue_title, connection):
 
         query = '''
             INSERT INTO
-                tickets (
+                tickets(
                     open_date,
                     issue_title,
                     contact_id
@@ -70,8 +76,17 @@ def create_ticket(contact_email, issue_title, connection):
         connection.commit()
         return (True)
 
-
-def modify_ticket(contact_email, new_issue_title, connection):
+# Description:
+#       Modifys a tickets attributes
+#
+# Pre-Conditions:
+#       contact_email (string)
+#       issue_title (string)
+#       connections (sqlite connection object)
+#
+# Post:
+#       Updates a tickets attributes
+def modify_ticket(contact_email, issue_title, connection):
 
     # Checks to see if the contact exists
     if not co.contact_exist(contact_email, connection):
@@ -88,6 +103,41 @@ def modify_ticket(contact_email, new_issue_title, connection):
             WHERE contact_email = ?
         '''
 
+        # Put data into a tuple
+        data = (
+            issue_title,
+            contact_email
+        )
+
         # Update and commit
-        cursor.execute(query, (new_issue_title, contact_email,))
+        cursor.execute(query, data)
         connection.commit()
+
+# Description:
+#       Checks to see if a ticket exists in the database
+#
+# Pre-Conditions:
+#       ticket_id (integer)
+#       connection (sqlite connection object)
+#
+# Post:
+#       Returns true if the ticket exists
+def ticket_exists(ticket_id, connection):
+
+    cursor = connection.cursor()
+    
+    # Query to see if ticket exists
+    query = '''
+        SELECT id
+        FROM tickets
+        WHERE id = ?
+    '''
+
+    # Execute the query
+    cursor.execute(query, (ticket_id,))
+
+    # Fetch the results of the query
+    results = cursor.fetchall()
+
+    # Return true if there are any results, false otherwise
+    return len(results) > 0
