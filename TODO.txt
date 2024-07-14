@@ -1,6 +1,6 @@
 1. Create python file for modifying tickets table (queries/tickets.py)
-    - Add function for creating tickets.
-    - Add function for modifying ticket attributes
+    + Add function for creating tickets.
+    + Add function for modifying ticket attributes
     - Create a function for deleting tickets - Note that we will need to CASCADE
     as there will be log entries that must be deleted to maintain referential
     integrity (might be best to leave this till later for now)
