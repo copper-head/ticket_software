@@ -25,7 +25,7 @@ def contact_exist(contact_email, connection):
     '''
 
     # Execute the query
-    sq.execute(query, (contact_email,))
+    cursor.execute(query, (contact_email,))
 
     # Fetch results of the query
     results = cursor.fetchall()
@@ -37,43 +37,43 @@ def contact_exist(contact_email, connection):
         return True
     
 
-    # Query to check if the contact already is in database using EXISTS
-    query = '''
-        SELECT
-            EXISTS (
-                SELECT
-                    1
-                FROM
-                    contacts
-                WHERE
-                    first_name = ?,
-                    last_name = ?,
-                    email = ?,
-                    phone = ?,
-                    contact_address = ?
-            )
-    '''
+    # # Query to check if the contact already is in database using EXISTS
+    # query = '''
+    #     SELECT
+    #         EXISTS (
+    #             SELECT
+    #                 1
+    #             FROM
+    #                 contacts
+    #             WHERE
+    #                 first_name = ?,
+    #                 last_name = ?,
+    #                 email = ?,
+    #                 phone = ?,
+    #                 contact_address = ?
+    #         )
+    # '''
 
-    # Pack data into tuple
-    data = (
-        first_name,
-        last_name,
-        email,
-        phone,
-        contact_address
-    )
+    # # Pack data into tuple
+    # data = (
+    #     first_name,
+    #     last_name,
+    #     email,
+    #     phone,
+    #     contact_address
+    # )
 
-    # Execute the query
-    sq.execute(query, (data,))
+    # # Execute the query
+    # cursor.execute(query, (data,))
 
-    # Fetch results
-    results = cursor.fetchall()
+    # # Fetch results
+    # results = cursor.fetchall()
 
-    # Check if the results is empty, if empty contact doesn't exists
-    if not len(results) == 0:
-        return False
-    else:
-        return True
+    # # Check if the results is empty, if empty contact doesn't exists
+    # if not len(results) == 0:
+    #     return False
+    # else:
+    #     return True
 
 
 
@@ -113,4 +113,24 @@ def create_contact(first_name, last_name, email, phone, contact_address, connect
 
 
 def modify_contact(first_name, last_name, email, phone, contact_address, connection):
-    pass
+    
+    # Check if the contact exists
+    if not contact_exist(email, connection):
+        return (False, "contact_not_found")
+    else:
+
+        cursor = connection.cursor()
+
+        # Query to update first_name, last_name, phone, and contact_address
+        query = '''
+            UPDATE contacts
+            SET first_name = ?,
+                last_name = ?,
+                phone = ?,
+                contact_address = ?
+            WHERE email == ?
+        '''
+        
+        # Update and commit
+        cursor.execute(query, (first_name, last_name, phone, contact_address, email,))
+        connection.commit()

@@ -1,6 +1,6 @@
-import sqlite as sq
+import sqlite
 import datetime
-
+import contacts as co
 
 #1. Create python file for modifying tickets table (queries/tickets.py)
 #    - Add function for creating tickets.
@@ -10,50 +10,11 @@ import datetime
 #    integrity (might be best to leave this till later for now)
 
 
-# Description:
-#       Checks to see if the contact for the ticket exist
-#
-# Pre-Conditions:
-#       contact_email (string) 
-#       connections (sqlite connection object)
-#
-# Post:
-#       returns a bool to check if the contact exists
-def contact_exist(contact_email, connection):
-    
-    cursor = connection.cursor()
-
-    # checking for id but could change schema to make contacts email unique
-    #query = '''
-    #    SELECT id
-    #    FROM contacts
-    #    WHERE id == ?
-    #'''
-    # possible query for email
-    query = '''
-        SELECT email
-        FROM contacts
-        WHERE email == ?
-    '''
-
-    # Execute the query
-    sq.execute(query, (contact_email,))
-
-    # Fetch results of the query
-    results = cursor.fetchall()
-
-    # If there is no results, return false, else true
-    if len(results) == 0:
-        return False
-    else:
-        return True
-    
-
 
 def create_ticket(contact_email, issue_title, connection):
 
     # Checks to see if the contact exists
-    if not contact_exist(contact_email, connection):
+    if not co.contact_exist(contact_email, connection):
         return (False, "contact_not_found")
     else:
 
@@ -67,7 +28,7 @@ def create_ticket(contact_email, issue_title, connection):
         '''
 
         # Execute the query
-        sq.execute(cursor, (query,))
+        cursor.execute(cursor, (query,))
 
         # Fetch results of the query
         results = cursor.fetchall()
@@ -113,7 +74,7 @@ def create_ticket(contact_email, issue_title, connection):
 def modify_ticket(contact_email, new_issue_title, connection):
 
     # Checks to see if the contact exists
-    if not contact_exist(contact_email, connection):
+    if not co.contact_exist(contact_email, connection):
         return (False, "contact_not_found")
     else:
 
@@ -122,7 +83,7 @@ def modify_ticket(contact_email, new_issue_title, connection):
         # This query only updates the ticket's issue_title
         # MUST HAVE WHERE!!! Otherwise UPDATE will modify all rows in the table
         query = '''
-            UPDATE contacts
+            UPDATE tickets
             SET issue_title = ?
             WHERE contact_email = ?
         '''

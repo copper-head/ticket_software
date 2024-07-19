@@ -159,7 +159,7 @@ def update_user_password(user_name, new_pass, connection):
     query = '''
         UPDATE users
         SET password_salt = ?, password_hash = ?
-        WHERE user_name = ?
+        WHERE user_name == ?
     '''
 
     # Update and commit
