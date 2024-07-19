@@ -22,22 +22,31 @@ import pyparsing as pp
 string_token = pp.Regex(r'"[^" | ^\"]*"')
 
 # Description:
-#       This function is used to check that validity of paramaters
-#
+#       This function is used to check that validity of conditional parameters passed
+#       through the API so that we avoid SQL injection attacks.
 def parse_string_conditional(input_str, valid_params, valid_cond):
-    
+
     # Terminal Rules for the grammar.
+    string_token = pp.Regex(r'"[^" | ^\"]*"')
     param = pp.oneOf(valid_params)
     comparators = pp.oneOf(valid_cond)
     logical_ops = pp.oneOf("AND OR")
     not_op = pp.oneOf("NOT")
 
-    tail_rule = pp.Forward()
+    # Need to define this in advance for recursion
+    expression = pp.Forward()
     
-    # 
-    conditionals = pp.Optional(not_op) + param + comparators + string_token
-    tail_rule << (logical_ops + conditionals + pp.Optional(tail_rule))
-    start_rule = conditionals + pp.Optional(tail_rule)
+    # Sort of the base statement we expect ([NOT] param == "string") for example
+    conditional = pp.Optional(not_op) + param + comparators + string_token
+    
+    # Main grammar rule
+    expression <<= (
+        '(' + expression + ')' + pp.Optional(logical_ops + expression) | 
+        conditional + pp.ZeroOrMore(logical_ops + conditional)
+    )
+
+    # Make sure the string ends
+    start_rule = expression + pp.StringEnd()
 
     # parse the input string
     try:
@@ -48,14 +57,12 @@ def parse_string_conditional(input_str, valid_params, valid_cond):
 
     return joined_result
 
-    
-
 
 if __name__ == "__main__":
 
-    input_str = "first_name == \"Duncanwowee\" AND first_name == \"repear\" OR first_name == \"CREME\" + afefesfs"
+    input_str = "first_name == \"hehe\" AND first_name == \"wowzers\""
 
-    test = parse_string_conditional(input_str, "first_name", "==")
+    test = new_parse_string(input_str, "first_name", "==")
 
     print(test)
     print(" ".join(test))
